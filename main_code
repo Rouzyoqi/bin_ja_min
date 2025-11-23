@@ -1,0 +1,69 @@
+/*
+    This program reads two light sensors and calculates their average.
+    When the average light level rises above a fixed threshold, the system
+    activates a buzzer and turns on LED indicators.
+
+    Components:
+    - Two analog light sensors connected to A0 and A1.
+    - Two LEDs connected to digital pins 2 and 4.
+    - One buzzer connected to digital pin 3.
+
+    Behavior:
+    - Continuously samples both sensors.
+    - Computes the mean of the two readings.
+    - If the mean exceeds 100, both LEDs are turned on and the buzzer emits
+      a 1300 Hz tone.
+    - Otherwise, the buzzer remains silent and LEDs stay off.
+
+    Notes:
+    - Threshold is hardcoded for simplicity.
+    - `screaming` is a state flag used to determine whether the alarm is active.
+*/
+
+// constants btw
+const int light_sensor_1 = A0;
+const int light_sensor_2 = A1;
+const int num_leds = 2;
+const int buzzer = 3;
+bool screaming = false;
+const int lights[] = {2, 4}; // for all at once setting to OUTPUT
+// these set up the pins for the digital i/o pins
+
+void setup() {
+  screaming = false;
+  // setting the pins to OUTPUT
+  for (int c = 0; c < num_leds; c++){
+    pinMode(lights[c], OUTPUT);
+  }
+  // this is an ANALOG input
+  pinMode(light_sensor_1, INPUT);
+  pinMode(light_sensor_2, INPUT);
+  pinMode(buzzer, OUTPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() { // simple script lah ts no need more refactor vro
+  float analog_reading_1 = analogRead(light_sensor_1); // assigning analog input dynamically
+  float analog_reading_2 = analogRead(light_sensor_2);
+  float analog_avr = (analog_reading_1 + analog_reading_2) / 2;
+  
+  // debugging tools
+  Serial.println(analog_reading_1, analog_reading_2);
+  Serial.println(analog_avr);
+  
+  // checking whether it's over the limit.
+  if (analog_avr >= 630.0) { // hardcoded for simplicity
+    screaming = true;
+    if (screaming) {
+      for (int c = 0; c < num_leds; c++) { // turning lights on to go RAHHHH
+        digitalWrite(lights[c], HIGH);
+      tone(buzzer, 1300);
+      };
+    } else {
+      screaming = false;
+      noTone(buzzer);
+    };
+  }
+}
+
